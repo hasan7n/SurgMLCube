@@ -1,0 +1,21 @@
+name: MLCommons TorchXRayVision Preprocessor
+description: MLCommons cube for preprocessing chexpert-like datasets
+authors:
+ - {name: "MLCommons Best Practices Working Group"}
+
+platform:
+  accelerator_count: 0
+
+docker:
+  # Image name.
+  image: mlcommons/surg-infer:0.0.1
+  # Docker build context relative to $MLCUBE_ROOT. Default is `build`.
+  build_context: "../project"
+  # Docker file name within docker build context, default is `Dockerfile`.
+  build_file: "Dockerfile"
+
+tasks:
+  infer:
+    parameters:
+      inputs: {data_path: data/, parameters_file: parameters.yaml, weights: additional_files/weights.pt}
+      outputs: {output_path: predictions/}

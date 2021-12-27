@@ -22,7 +22,7 @@ RUN pip3 install --upgrade pip
 
 # RUN pip3 install --no-cache-dir -r project/requirements.txt
 
-RUN apt-get install ffmpeg -y
+# RUN apt-get install ffmpeg -y
 
 ENV LANG C.UTF-8
 

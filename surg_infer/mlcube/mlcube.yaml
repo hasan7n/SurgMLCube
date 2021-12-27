@@ -15,7 +15,12 @@ docker:
   build_file: "Dockerfile"
 
 tasks:
-  infer:
+  inference:
     parameters:
-      inputs: {data_path: data/, parameters_file: parameters.yaml, weights: additional_files/weights.pt}
+      inputs:
+        data_path: data/
+        parameters_file: parameters.yaml
+        feature_extraction_weights: additional_files/PretrainedResnet50
+        mstcn_weights: additional_files/mstcn_weights
+        
       outputs: {output_path: predictions/}

@@ -1,8 +1,6 @@
 """MLCube handler file"""
-import os
-import yaml
+
 import typer
-# import shutil
 import subprocess
 
 
@@ -16,7 +14,7 @@ def exec_python(cmd: str) -> None:
     process.wait()
 
 
-class PrepareTask(object):
+class InferenceTask(object):
     """
     Task for preparing the data
 
@@ -29,70 +27,22 @@ class PrepareTask(object):
 
     @staticmethod
     def run(
-        data_path: str, labels_path: str, params_file: str, output_path: str
+        data_root: str, feature_extraction_weights_path: str, mstcn_weights_path: str, params_file: str, output_path: str
     ) -> None:
-        cmd = f"python3 prepare_data.py --vids_path={data_path} --labels_path={labels_path} --params_file={params_file} --output_path={output_path}"
+        cmd = f"python3 inference.py --data_path={data_root} --feature_extraction_weights_path={feature_extraction_weights_path} --mstcn_weights_path={mstcn_weights_path} --params_file={params_file} --output_path={output_path}"
         exec_python(cmd)
 
 
-class SanityCheckTask(object):
-    """
-    Task for checking that the resulting data follows the standard
 
-    Arguments:
-    - data_path: data location.
-    - params_file: location of parameters.yaml file
-    """
-
-    @staticmethod
-    def run(data_path: str, params_file: str) -> None:
-        cmd = f"python3 check.py --data_path={data_path} --params_file={params_file}"
-        exec_python(cmd)
-
-
-# class StatisticsTask(object):
-#     """
-#     Task for generating and storing statistics about the prepared data
-
-#     Arguments:
-#     - data_path: data location.
-#     - params_file: location of parameters.yaml file
-#     """
-
-#     @staticmethod
-#     def run(data_path: str, params_file: str, out_path: str) -> None:
-#         cmd = f"python3 statistics.py --data_path={data_path} --params_file={params_file} --out_path={out_path}"
-#         exec_python(cmd)
-
-
-# class CleanupTask(object):
-#     """
-#     Task for returning the workspace to its initial state. It removes
-#     any files created by the cube, as well as the parameters file.
-
-#     Args:
-#     - params_file: yaml file with configuration parameters.
-#     - output_path: path where the cube's output is stored.
-#     """
-
-#     @staticmethod
-#     def run(params_file: str, output_path: str) -> None:
-#         for root, dirs, files in os.walk(output_path):
-#             for file in files:
-#                 os.remove(os.path.join(root, file))
-#             for dir in dirs:
-#                 shutil.rmtree(os.path.join(root, dir))
-#         os.remove(params_file)
-
-
-@app.command("infer")
+@app.command("inference")
 def prepare(
     data_path: str = typer.Option(..., "--data_path"),
-    labels_path: str = typer.Option(..., "--labels_path"),
+    feature_extractor_weights: str = typer.Option(..., "--feature_extraction_weights"),
+    mstcn_weights: str = typer.Option(..., "--mstcn_weights"),
     parameters_file: str = typer.Option(..., "--parameters_file"),
     output_path: str = typer.Option(..., "--output_path"),
 ):
-    PrepareTask.run(data_path, labels_path, parameters_file, output_path)
+    InferenceTask.run(data_path, feature_extractor_weights, mstcn_weights, parameters_file, output_path)
 
 @app.command("dummy")
 def dummy():

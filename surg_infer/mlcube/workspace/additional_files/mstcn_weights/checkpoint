@@ -1,0 +1,2 @@
+model_checkpoint_path: "mstcn_weights"
+all_model_checkpoint_paths: "mstcn_weights"

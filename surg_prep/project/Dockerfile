@@ -32,7 +32,7 @@
 
 # ENTRYPOINT ["python3", "mlcube.py"]
 
-FROM temp/mycont:0.0.1
+FROM temp/mycont:0.0.2
 
 LABEL org.opencontainers.image.authors="MLPerf MLBox Working Group"
 

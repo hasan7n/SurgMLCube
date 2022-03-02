@@ -3,32 +3,31 @@ import csv
 import json
 
 
-def _filename_no_ext(filename):
+def get_file_basename(filename):
     return os.path.basename(os.path.splitext(filename)[0])
 
-def _file_ext(filename):
+def get_file_extention(filename):
     return os.path.splitext(filename)[1]
 
-def _get_video_fps(filename):
+def get_video_fps(filename):
     cmd = f'ffmpeg -i {filename} 2>&1 | sed -n "s/.*, \(.*\) fp.*/\\1/p"'
-    return round(float(os.popen(cmd).read().strip()))
-
-def _time_str_to_sec(time_str):
-    hrs, min, sec = time_str.split(":")
-    hrs = int(hrs)
-    min = int(min)
-    sec = float(sec)
-    return hrs*3600 + min*60 + sec
+    return round(float(os.popen(cmd).read().strip())) # WARNING: would rounding cause issues in some videos?
 
 
 class LabelsParser:
 
-    # expected to return:   list of labels or None, before processing any start, end, or fps.
-    #                       i.e. a label for each single frame of the original video provided.
+    # expected to return:   list of labels and/or 'None's, before processing any start, end, or fps.
+    #                       i.e. a label (or None) for each single frame of the original, unsampled video.
     
+    def time_str_to_sec(time_str):
+        hrs, min, sec = time_str.split(":")
+        hrs = int(hrs)
+        min = int(min)
+        sec = float(sec)
+        return hrs*3600 + min*60 + sec
 
     def time_to_id(time_strs, fps):
-        mapping = lambda time_str: round(fps*_time_str_to_sec(time_str))
+        mapping = lambda time_str: round(fps*LabelsParser.time_str_to_sec(time_str))
         return list(map(mapping, time_strs))
 
     def check_csv_txt_structure(file):
@@ -92,7 +91,7 @@ class LabelsParser:
                 'duration' : 
                 'labelName' : 
             }
-            OR
+            OR (depends on the version)
             {
                 'timestamp' : 
                 'duration' : 
@@ -137,4 +136,3 @@ class LabelsParser:
                 frame_id_start += 1
         
         return parsed
-

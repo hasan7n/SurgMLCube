@@ -1,7 +1,7 @@
-name: MLCommons TorchXRayVision Preprocessor
-description: MLCommons cube for preprocessing chexpert-like datasets
+name: MLCommons Surgical Videos Preprocessor
+description: MLCommons cube for preprocessing surgical videos datasets
 authors:
- - {name: "MLCommons Best Practices Working Group"}
+ - {name: "Hasan Kassem"}
 
 platform:
   accelerator_count: 0
@@ -24,17 +24,17 @@ tasks:
       outputs:
         output_path: data/
 
-  # sanity_check:
-  #   parameters:
-  #     inputs:
-  #       data_path: data/
-  #       parameters_file: parameters.yaml
-  # statistics:
-  #   parameters:
-  #     inputs:
-  #       data_path: data/
-  #       parameters_file: parameters.yaml
-  #     outputs:
-  #       output_path:
-  #         type: file
-  #         default: statistics.yaml
+  sanity_check:
+    parameters:
+      inputs:
+        data_path: data/
+        parameters_file: parameters.yaml
+  statistics:
+    parameters:
+      inputs:
+        data_path: data/
+        parameters_file: parameters.yaml
+      outputs:
+        output_path:
+          type: file
+          default: statistics.yaml

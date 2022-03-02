@@ -4,97 +4,128 @@ import yaml
 import argparse
 import csv
 
-from utils import _filename_no_ext, _file_ext, _get_video_fps
+from utils import get_file_basename, get_file_extention, get_video_fps
 from utils import LabelsParser
 
 
 class DataPreparation:
-    def __init__(self, vids_path, labels_path, params_file, output_path):
+    def __init__(self, data_path, labels_path, params_file, output_path):
         with open(params_file, "r") as f:
             self.params = yaml.full_load(f)
 
-        self.vids_path = vids_path
+        self.data_path = data_path
         self.labels_path = labels_path
         self.output_path = output_path
 
-        self.supported_videos = []
-        self.supported_labels = []
+        self.supported_videos_paths = []
+        self.supported_labels_paths = []
 
         # TODO: check what ffmpeg is not capable of handling, or what it can handle but in a different way
         self.supported_video_extensions = [".mp4"]
-        self.supported_labels_extensions = [".txt", ".csv", ".json"]
+        # TODO: check what other labels file structures have been used
+        self.supported_labels_paths_extensions = [".txt", ".csv", ".json"]
 
     
     def get_and_check_video_files(self):
-
-        for filename in os.listdir(self.vids_path):
-            extenstion = _file_ext(filename)
-            file = os.path.join(self.vids_path, filename)
+        """
+        Checks every file in 'self.data_path'.
+        Saves supported video files paths for processing (in 'self.supported_videos_paths') and ignores other files.
+        """
+        for filename in os.listdir(self.data_path):
+            extenstion = get_file_extention(filename)
+            file = os.path.join(self.data_path, filename)
 
             if extenstion in self.supported_video_extensions:
-                self.supported_videos.append(file)
+                self.supported_videos_paths.append(file)
             else:
                 print(f"Warning: Unrecognized video file type: {file}")
     
     def get_and_check_label_files(self):
-
+        """
+        Checks every file in 'self.labels_path'.
+        Saves supported labels files paths for processing (in 'self.supported_labels_paths') and ignores other files.
+        """
         for filename in os.listdir(self.labels_path):
-            extenstion = _file_ext(filename)
+            extenstion = get_file_extention(filename)
             file = os.path.join(self.labels_path, filename)
 
-            if extenstion in self.supported_labels_extensions:
-                self.supported_labels.append(file)
+            if extenstion in self.supported_labels_paths_extensions:
+                self.supported_labels_paths.append(file)
             else:
                 print(f"Warning: Unrecognized label file type: {file}")
 
     def assign_labels_to_videos(self):
+        """
+        Assigns labels files to videos. Each code block below is titled with its role:
+        - checks duplicate files (same names different extensions. this can rise ambiguity when associating
+                                 videos to labels files)
+        - Creates a dictionary attribute: 'self.videos_labels_pairs' of the form:
+            {<video_path>:{
+                            "labels": <labels_file_path>,
+                            "fps": <video_fps>
+                            }
+                }
+        
+        - checks if any video file or labels file was not paired.
+        """
 
         # TODO: should we accept other naming pattern conventions? e.g. (video1.mp4 and video1_labels.txt)
         #       Currently, same name should be assigned to both the video and the labels file
 
-        video_names = list(map(lambda x:_filename_no_ext(x), self.supported_videos))
-        labels_names = list(map(lambda x:_filename_no_ext(x), self.supported_labels))
+        video_name_to_label_name = lambda video_name: video_name
 
-        # remove duplicate files if any
-        unique_videos = []
+        video_names = list(map(lambda x:get_file_basename(x), self.supported_videos_paths))
+        labels_names = list(map(lambda x:get_file_basename(x), self.supported_labels_paths))
+
+        # remove duplicate video files if any
+        unique_videos_names = []
         for i, vid_name in enumerate(video_names):
-            if vid_name in unique_videos:
-                print(f"Warning: Found multiple video files with the same name but with different file extensions: {self.supported_videos[i]} will be ignored")
-                self.supported_videos[i] = None
+            if vid_name in unique_videos_names:
+                print(f"Warning: Found multiple video files with the same name but with different file extensions: {self.supported_videos_paths[i]} will be ignored")
+                self.supported_videos_paths[i] = None
             else:
-                unique_videos.append(vid_name)
+                unique_videos_names.append(vid_name)
         
+        self.supported_videos_paths = [item for item in self.supported_videos_paths if item]
+
+        # remove duplicate labels files if any
         unique_labels = []
         for i, label_name in enumerate(labels_names):
             if label_name in unique_labels:
-                print(f"Warning: Found multiple label files with the same name but with different file extensions: {self.supported_labels[i]} will be ignored")
-                self.supported_labels[i] = None
+                print(f"Warning: Found multiple label files with the same name but with different file extensions: {self.supported_labels_paths[i]} will be ignored")
+                self.supported_labels_paths[i] = None
             else:
                 unique_labels.append(label_name)
         
-        self.supported_videos = [item for item in self.supported_videos if item]
-        self.supported_labels = [item for item in self.supported_labels if item]
+        self.supported_labels_paths = [item for item in self.supported_labels_paths if item]
 
-        # associate video-label pairs
+        # associate video-label pairs + check if any video didn't match with any labels file
         self.videos_labels_pairs = {}
-        assigned_labels = []
-        for i, video in enumerate(unique_videos):
-            vid_path = self.supported_videos[i]
-            try:
-                label_index = unique_labels.index(video)
-                label_file = self.supported_labels[label_index]
-                self.videos_labels_pairs[vid_path] = {"labels": label_file, "fps": _get_video_fps(vid_path)}
-                assigned_labels.append(label_file)
-            except ValueError:
-                print(f"Warning: {self.supported_videos[i]} has no associated labels. It will be ignored")
+        matched_labels = []
+        for i, video in enumerate(unique_videos_names):
+            vid_path = self.supported_videos_paths[i]
+            expected_label = video_name_to_label_name(video)
+            if expected_label in unique_labels:
+                label_index = unique_labels.index(expected_label)
+                label_file = self.supported_labels_paths[label_index]
+
+                self.videos_labels_pairs[vid_path] = {"labels": label_file, "fps": get_video_fps(vid_path)}
+                matched_labels.append(label_file)
+            else:
+                print(f"Warning: {self.supported_videos_paths[i]} has no associated labels. It will be ignored")
         
-        if len(assigned_labels) != len(unique_labels):
+        # check if any labels file didn't match with any video
+        if len(matched_labels) != len(unique_labels):
             for i, label in enumerate(unique_labels):
-                if label not in assigned_labels:
-                    print(f"Warning: {self.supported_labels[i]} has no associated video. It will be ignored")
+                if label not in matched_labels:
+                    print(f"Warning: {self.supported_labels_paths[i]} has no associated video. It will be ignored")
 
 
     def process_videos(self):
+        """
+        Extracts frames from each video using ffmpeg,
+        according to <fps> and <frame size> specified in the config file.
+        """
 
         if not os.path.exists(self.output_path):
             os.mkdir(self.output_path)
@@ -102,36 +133,50 @@ class DataPreparation:
         frames_path = os.path.join(self.output_path, "frames")
         if not os.path.exists(frames_path):
             os.mkdir(frames_path)
+        else:
+            if os.listdir(frames_path):
+                print("Warning: found existing files/folders in frames output path.")
+
 
         scale = self.params["scale"]
         fps = self.params["fps"]
 
         print(f"Extracting videos:\n\tSampling: {fps} frames per second\n\toutput frame scale: {scale[0]}-by-{scale[1]}\n")
         for vid_path in tqdm(self.videos_labels_pairs.keys()):
-            file_name = _filename_no_ext(vid_path)
+            file_name = get_file_basename(vid_path)
             out_folder = os.path.join(frames_path, file_name)
 
             if not os.path.exists(out_folder):
                 os.mkdir(out_folder)
+            else:
+                if os.listdir(out_folder):
+                    print(f"Warning: It seems that the video ({file_name}) has already been already extracted. Skipping.")
+                    continue
 
             imgs_prefix_name = os.path.join(out_folder, file_name)
 
             os.system(
                 f'ffmpeg -loglevel quiet -i {vid_path} -vf "scale={scale[0]}:{scale[1]},fps={fps}" {imgs_prefix_name}_%06d.png'
-            )
+            ) # WARNING: videos with more than 10^6 frames may cause problems?
+
             print(f"Done extracting: {vid_path}")
 
     def process_labels(self):
-
-        out_path = os.path.join(self.output_path, "data_csv")
-        if not os.path.exists(out_path):
-            os.mkdir(out_path)
+        """
+        Parses labels files and creates csv files for each video where each frame is associated with a label.
+        """
+        csv_out_path = os.path.join(self.output_path, "data_csv")
+        if not os.path.exists(csv_out_path):
+            os.mkdir(csv_out_path)
+        else:
+            if os.listdir(csv_out_path):
+                print("Warning: found existing files/folders in csv files output path.")
 
         for vid in self.videos_labels_pairs.keys():
             
-            out_file = os.path.join(out_path, _filename_no_ext(vid)+".csv")
+            out_file = os.path.join(csv_out_path, get_file_basename(vid)+".csv")
 
-            frames_folder = os.path.join(self.output_path, "frames", _filename_no_ext(vid))
+            frames_folder = os.path.join(self.output_path, "frames", get_file_basename(vid))
 
             frames = os.listdir(frames_folder)
             frames.sort()
@@ -140,7 +185,7 @@ class DataPreparation:
             labels_file = self.videos_labels_pairs[vid]["labels"]
             video_fps = self.videos_labels_pairs[vid]["fps"]
 
-            labels_file_type = _file_ext(labels_file)
+            labels_file_type = get_file_extention(labels_file)
             if labels_file_type in [".csv", ".txt"]:
                 labels_data = LabelsParser.parse_csv_txt_labels(labels_file, video_fps, self.params["labels"])
             elif labels_file_type == ".json":
@@ -186,6 +231,7 @@ class DataPreparation:
 
 
     def run(self):
+        # TODO: add an extra step of trimming videos according to a start_end_file.csv
 
         self.get_and_check_video_files()
         self.get_and_check_label_files()
@@ -202,8 +248,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--vids_path",
-        "--vids-path",
+        "--data_path",
+        "--data-path",
         type=str,
         required=True,
         help="Location of videos",
@@ -234,10 +280,10 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    preprocessor = DataPreparation(args.vids_path,
-                                   args.labels_path,
-                                args.params_file,
-                                args.output_path
+    preprocessor = DataPreparation( args.data_path,
+                                    args.labels_path,
+                                    args.params_file,
+                                    args.output_path
                                 )
     preprocessor.run()
 

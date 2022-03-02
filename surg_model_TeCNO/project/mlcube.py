@@ -34,7 +34,7 @@ class InferenceTask(object):
 
 
 
-@app.command("inference")
+@app.command("infer")
 def prepare(
     data_path: str = typer.Option(..., "--data_path"),
     feature_extractor_weights: str = typer.Option(..., "--feature_extraction_weights"),

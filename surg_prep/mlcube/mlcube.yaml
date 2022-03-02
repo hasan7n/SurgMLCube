@@ -1,5 +1,5 @@
-name: MLCommons Surgical Videos Preprocessor
-description: MLCommons cube for preprocessing surgical videos datasets
+name: Surgical Videos Preprocessor
+description: cube for preprocessing surgical videos datasets
 authors:
  - {name: "Hasan Kassem"}
 
@@ -8,7 +8,7 @@ platform:
 
 docker:
   # Image name.
-  image: mlcommons/surg-prep:0.0.1
+  image: surg-prep:0.0.1
   # Docker build context relative to $MLCUBE_ROOT. Default is `build`.
   build_context: "../project"
   # Docker file name within docker build context, default is `Dockerfile`.

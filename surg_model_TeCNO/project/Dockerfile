@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM nvidia/cuda:11.2.0-cudnn8-runtime-ubuntu18.04
 LABEL org.opencontainers.image.authors="MLPerf MLBox Working Group"
 
 RUN apt-get update && \

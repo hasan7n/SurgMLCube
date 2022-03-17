@@ -32,3 +32,5 @@ need to provide path to:
 - show explicitly missing labels if they exist?
 - more explicit sanity checks maybe are needed
 - labels oversampled?
+
+-Pdocker.build_strategy=always

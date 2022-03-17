@@ -1,10 +1,10 @@
-name: TorchXRayVision Preprocessor
-description: cube for preprocessing chexpert-like datasets
+name: TeCNO-phase-tool
+description: cube for running TeCNO model with phase and tool
 authors:
  - {name: "Best Practices Working Group"}
 
 platform:
-  accelerator_count: 0
+  accelerator_count: 1
 
 docker:
   # Image name.
@@ -13,6 +13,7 @@ docker:
   build_context: "../project"
   # Docker file name within docker build context, default is `Dockerfile`.
   build_file: "Dockerfile"
+  gpu_args: --runtime=nvidia
 
 tasks:
   infer:

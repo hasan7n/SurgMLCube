@@ -120,6 +120,11 @@ class Inference:
 
 
 if __name__ == "__main__":
+    # TODO: now picks the first visible gpu. can be an issue if it was in use by other processes
+    try:
+        tf.config.set_visible_devices(tf.config.list_physical_devices("GPU")[0], "GPU")
+    except IndexError:
+        tf.print("WARNING: no GPU was detected. Runnning on CPU.")
     parser = argparse.ArgumentParser()
 
     parser.add_argument(

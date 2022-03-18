@@ -2,12 +2,23 @@ import argparse
 import csv
 from pathlib import Path
 import yaml
-from sklearn.metrics import f1_score, accuracy_score
+import numpy as np
+from sklearn.metrics import (f1_score, accuracy_score,
+                            jaccard_score, recall_score, precision_score)
 
 
 class MetricsClass:
     def f1_score(labels, preds):
         return f1_score(labels, preds, average='macro')
+    
+    def precision(labels, preds):
+        return precision_score(labels, preds, average='macro')
+    
+    def jaccard(labels, preds):
+        return jaccard_score(labels, preds, average='macro')
+    
+    def recall(labels, preds):
+        return recall_score(labels, preds, average='macro')
     
     def accuracy(labels, preds):
         return accuracy_score(labels, preds)
@@ -20,6 +31,9 @@ class Evaluation:
 
         self.available_metrics = {
             "f1-score": MetricsClass.f1_score,
+            "recall": MetricsClass.recall,
+            "precision": MetricsClass.precision,
+            "jaccard": MetricsClass.jaccard,
             "accuracy": MetricsClass.accuracy,
         }
 
@@ -32,20 +46,30 @@ class Evaluation:
 
         preds_files = self.preds_path.glob("*.csv")
         for file in preds_files:
+            labels.append([])
+            preds.append([])
             with open(file) as f:
                 reader = csv.reader(f)
                 for i, row in enumerate(reader):
                     if i == 0:
                         continue
-                    labels.append(int(row[1]))
-                    preds.append(int(row[2]))
-
+                    labels[-1].append(int(row[1]))
+                    preds[-1].append(int(row[2]))
         
-        results = {}
+        results = {"overall": {}, "per_video": {}}
+
         for metric_name in self.params["metrics"]:
             metric = self.available_metrics[metric_name]
-            scores = metric(labels, preds)
-            results[metric_name] = float(scores)
+            scores_per_video = []
+            for vid_labels, vid_preds in zip(labels, preds):
+                scores = metric(vid_labels, vid_preds)
+                scores_per_video.append(float(scores))
+            scores = metric(sum(labels, []), sum(preds, []))
+            results["overall"][metric_name] = float(scores)
+            results["per_video"][metric_name] = {
+                                            "mean": float(np.mean(scores_per_video)),
+                                            "std": float(np.std(scores_per_video))
+                                            }
 
         with open(self.output_file, "w") as f:
             yaml.dump(results, f)

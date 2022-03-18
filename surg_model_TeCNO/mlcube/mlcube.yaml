@@ -1,4 +1,4 @@
-name: TeCNO-phase-tool
+name: TeCNO-phase-tool Model
 description: cube for running TeCNO model with phase and tool
 authors:
  - {name: "Best Practices Working Group"}
@@ -8,7 +8,7 @@ platform:
 
 docker:
   # Image name.
-  image: hasan7/surg-infer:0.0.1
+  image: hasan7/surg-infer-TeCNO-phase-tool:0.0.1
   # Docker build context relative to $MLCUBE_ROOT. Default is `build`.
   build_context: "../project"
   # Docker file name within docker build context, default is `Dockerfile`.

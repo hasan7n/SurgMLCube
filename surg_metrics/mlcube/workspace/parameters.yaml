@@ -5,3 +5,4 @@ metrics:
   - jaccard
   - recall
   - precision
+num_classes: 7

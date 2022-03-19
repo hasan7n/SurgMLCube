@@ -8,19 +8,22 @@ from sklearn.metrics import (f1_score, accuracy_score,
 
 
 class MetricsClass:
-    def f1_score(labels, preds):
-        return f1_score(labels, preds, average='macro')
+    def __init__(self, num_classes):
+        self.num_classes = num_classes
+
+    def f1_score(self, labels, preds):
+        return f1_score(labels, preds, average='macro', labels=list(range(self.num_classes)))
     
-    def precision(labels, preds):
-        return precision_score(labels, preds, average='macro')
+    def precision(self, labels, preds):
+        return precision_score(labels, preds, average='macro', labels=list(range(self.num_classes)))
     
-    def jaccard(labels, preds):
-        return jaccard_score(labels, preds, average='macro')
+    def jaccard(self, labels, preds):
+        return jaccard_score(labels, preds, average='macro', labels=list(range(self.num_classes)))
     
-    def recall(labels, preds):
-        return recall_score(labels, preds, average='macro')
+    def recall(self, labels, preds):
+        return recall_score(labels, preds, average='macro', labels=list(range(self.num_classes)))
     
-    def accuracy(labels, preds):
+    def accuracy(self, labels, preds):
         return accuracy_score(labels, preds)
 
 
@@ -29,12 +32,13 @@ class Evaluation:
         with open(parameters_file, "r") as f:
             self.params = yaml.full_load(f)
 
+        metrics_class = MetricsClass(self.params["num_classes"])
         self.available_metrics = {
-            "f1-score": MetricsClass.f1_score,
-            "recall": MetricsClass.recall,
-            "precision": MetricsClass.precision,
-            "jaccard": MetricsClass.jaccard,
-            "accuracy": MetricsClass.accuracy,
+            "f1-score": metrics_class.f1_score,
+            "recall": metrics_class.recall,
+            "precision": metrics_class.precision,
+            "jaccard": metrics_class.jaccard,
+            "accuracy": metrics_class.accuracy,
         }
 
         self.output_file = output_file

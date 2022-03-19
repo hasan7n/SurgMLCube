@@ -98,7 +98,7 @@ class Inference:
         return video_predictions, video_labels, video_frame_path
 
     def save_video_predictions(self, preds, labels, paths, out_file):
-        print("saving video predictions")
+        tf.print("saving video predictions")
         with open(out_file, "w") as f:
             writer = csv.writer(f)
             writer.writerow(["frame_path", "label", "prediction"])
@@ -109,6 +109,7 @@ class Inference:
     def run(self):
         num_vids = len(self.datasets)
         for i in range(num_vids):
+            tf.print(f"Video {i+1}/{num_vids}")
             self.current_dataset = self.datasets[i]
             preds, labels, paths = self.one_video_inference()
             out_file = self.out_path / self.video_file_names[i]

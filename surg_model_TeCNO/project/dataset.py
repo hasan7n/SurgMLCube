@@ -50,6 +50,8 @@ def backbone_dataset(data_root,
     
     datasets = list()
     csv_file_names = list()
+    
+    to_dict_fn = lambda img, label, frame_id: {"image_path":img, "label":label, "frame_id":frame_id}
 
     for csv_file in csv_files:
         frames = list()
@@ -69,7 +71,7 @@ def backbone_dataset(data_root,
         
         csv_file_names.append(csv_file.name)
         datasets.append(tf.data.Dataset.from_tensor_slices((frames, labels, frame_ids))
-                        .map(lambda img, label, frame_id: {"image_path":img, "label":label, "frame_id":frame_id})
+                        .map(to_dict_fn)
                         .map(read_image, num_parallel_calls=AUTOTUNE)
                         .batch(batch_size)
                         .map(resize_map, num_parallel_calls=AUTOTUNE)

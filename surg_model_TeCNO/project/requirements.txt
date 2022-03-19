@@ -1,4 +1,3 @@
 typer
 PyYAML
 tqdm
-tensorflow==2.5

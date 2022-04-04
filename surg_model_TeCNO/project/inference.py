@@ -50,9 +50,9 @@ class Inference:
 
 
     @tf.function
-    def one_video_inference(self):
+    def one_video_inference(self, dataset):
 
-        num_batches = self.current_dataset.cardinality()
+        num_batches = dataset.cardinality()
         num_batches = tf.cast(num_batches, tf.int32)
         features_tensor_array = tf.TensorArray(dtype=tf.float32, element_shape=[None, 2048], size=num_batches)
         labels_tensor_array = tf.TensorArray(dtype=tf.int32, element_shape=[None], size=num_batches)
@@ -62,7 +62,7 @@ class Inference:
         writer_index = tf.constant(0, dtype=tf.int32)
 
         tf.print(f"Extracting features:")
-        for data_instance in self.current_dataset:
+        for data_instance in dataset:
             tf.print("batch", writer_index, "/", num_batches)
 
             images = data_instance["image"]
@@ -110,8 +110,7 @@ class Inference:
         num_vids = len(self.datasets)
         for i in range(num_vids):
             tf.print(f"Video {i+1}/{num_vids}")
-            self.current_dataset = self.datasets[i]
-            preds, labels, paths = self.one_video_inference()
+            preds, labels, paths = self.one_video_inference( self.datasets[i])
             out_file = self.out_path / self.video_file_names[i]
             self.save_video_predictions(preds.numpy(), labels.numpy(), paths.numpy(), out_file)
         

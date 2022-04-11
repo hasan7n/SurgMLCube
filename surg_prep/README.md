@@ -104,8 +104,7 @@ The following parameters can be adjusted in the [parameters.yaml](mlcube/workspa
 ## MLCube built-in Tasks
 
 The final (default) directory tree (if all tasks are executed) will be as follows:
-
-```
+<pre>
 surg_prep
 ├── mlcube
 │   ├── workspace
@@ -121,30 +120,30 @@ surg_prep
 │   │   │
 │   │   ├── parameters.yaml
 │   │   │
-│   │   ├── statistics.yaml
-│   │   │
-│   │   └── data
-│   │       ├── frames
-│   │       │   ├── some_video
-│   │       │   │   ├── some_video_000000.png
-│   │       │   │   ├── some_video_000001.png
-│   │       │   │   └ ...
-│   │       │   │
-│   │       │   ├── other_video
-│   │       │   │   ├── other_video_000000.png
-│   │       │   │   ├── other_video_000001.png
-│   │       │   │   └ ...
-│   │       │   │
-│   │       │   └ ...
-│   │       │
-│   │       └── data_csv
-│   │           ├── some_video.csv
-│   │           ├── other_video.csv
-│   │           └ ...
+│   │   <b>├── statistics.yaml</b>
+│   │   <b>│</b>
+│   │   <b>└── data</b>
+│   │       <b>├── frames</b>
+│   │       <b>│   ├── some_video</b>
+│   │       <b>│   │   ├── some_video_000000.png</b>
+│   │       <b>│   │   ├── some_video_000001.png</b>
+│   │       <b>│   │   └ ...</b>
+│   │       <b>│   │</b>
+│   │       <b>│   ├── other_video</b>
+│   │       <b>│   │   ├── other_video_000000.png</b>
+│   │       <b>│   │   ├── other_video_000001.png</b>
+│   │       <b>│   │   └ ...</b>
+│   │       <b>│   │</b>
+│   │       <b>│   └ ...</b>
+│   │       <b>│</b>
+│   │       <b>└── data_csv</b>
+│   │           <b>├── some_video.csv</b>
+│   │           <b>├── other_video.csv</b>
+│   │           <b>└ ...</b>
 │   │
 │   └── mlcube.yaml
 └── project
-```
+</pre>
 
 The locations and names of each of ```data``` and ```statistics.yaml``` can be different but should be specified either in [mlcube.yaml](mlcube/mlcube.yaml) or the command line arguments when running the MLCube using the ```mlcube``` tool.
 
@@ -186,5 +185,5 @@ The following statistics of the **prepared dataset** (after running task ```prep
     * ```stddev```: Standard deviation of the number of frames across videos.
     * ```per_video```: 
         * ```some_video```: Number of frames of the video ```some_video```.
-        * ```other video```: Number of frames of the video ```other_video```.
+        * ```other_video```: Number of frames of the video ```other_video```.
         * ...

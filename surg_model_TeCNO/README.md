@@ -58,8 +58,7 @@ The MLCube is by default configured to run on the GPU if a GPU is detected, othe
 ## MLCube built-in Tasks
 
 The final (default) directory tree will be as follows:
-
-```
+<pre>
 surg_model_TeCNO
 ├── mlcube
 │   ├── workspace
@@ -73,15 +72,14 @@ surg_model_TeCNO
 │   │   │
 │   │   ├── parameters.yaml
 │   │   │
-│   │   └── predictions
-│   │       ├── some_video.csv
-│   │       ├── other_video.csv
-│   │       └ ...
+│   │   <b>└── predictions</b>
+│   │       <b>├── some_video.csv</b>
+│   │       <b>├── other_video.csv</b>
+│   │       <b>└ ...</b>
 │   │   
 │   └── mlcube.yaml
 └── project
-
-```
+</pre>
 
 The location and name of ```predictions``` can be different but should be specified either in [mlcube.yaml](mlcube/mlcube.yaml) or the command line arguments when running the MLCube using the ```mlcube``` tool.
 

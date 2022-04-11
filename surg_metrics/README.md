@@ -52,8 +52,7 @@ The following parameters can be adjusted in the [parameters.yaml](mlcube/workspa
 ## MLCube built-in Tasks
 
 The final (default) directory tree will be as follows:
-
-```
+<pre>
 surg_metrics
 ├── mlcube
 │   ├── workspace
@@ -68,12 +67,11 @@ surg_metrics
 │   │   │   ├── other_video.csv
 │   │   │   └ ...
 │   │   │
-│   │   └── results.yaml
+│   │   └── <b>results.yaml</b>
 │   │   
 │   └── mlcube.yaml
 └── project
-
-```
+</pre>
 
 The location and name of ```results.yaml``` can be different but should be specified either in [mlcube.yaml](mlcube/mlcube.yaml) or the command line arguments when running the MLCube using the ```mlcube``` tool.
 

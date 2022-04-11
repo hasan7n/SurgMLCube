@@ -6,6 +6,30 @@ from utils import get_file_basename, get_file_extention
 
 class SanityChecks:
     def __init__(self, data_path, params_file):
+        """A class wrapper for doing sanity checks on prepared dataset.
+
+        The checks consist of raising an AssertionError if:
+            the frames folder doesn't exist,
+            the csv data folder doesn't exist,
+            the frames folder is empty,
+            the csv data folder is empty,
+            the csv data folder contains folders,
+            the csv data folder contains non-csv files,
+            a csv file doesn't have a corresponding frames folder,
+            any extracted video frame is not .png,
+            labels are not integers between 0 and <total number of labels>,
+            csv files contain invalid frames paths,
+            csv files have incorrect structure.
+
+        Args:
+            data_path (str): The path to the folder of the prepared data, generated 
+                             by the preparation step of the MLCube.
+            params_file (str): Configuration file for the data-preparation step.
+
+        methods:
+            run(): executing the sanity checks.
+        
+        """
         with open(params_file, "r") as f:
             self.params = yaml.full_load(f)
 
@@ -13,7 +37,7 @@ class SanityChecks:
     
     def run(self):
         """
-        a lot of checks.
+        A lot of checks.
         """
         frames_path = os.path.join(self.data_path, "frames")
         csv_path = os.path.join(self.data_path, "data_csv")

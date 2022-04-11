@@ -11,7 +11,11 @@ class EvaluateTask(object):
     """Runs evaluation metrics given the predictions and label files
 
     Args:
-        object ([type]): [description]
+    - preds_path: predictions location.
+    - labels: location of the original data. Dummy input.
+    - parameters_file: yaml file with additional parameters
+    - output_file: location to the results
+
     """
 
     @staticmethod
@@ -35,9 +39,10 @@ def evaluate(
     EvaluateTask.run(preds_path, labels, parameters_file, output_path)
 
 
-@app.command("test")
-def test():
-    pass
+@app.command("dummy")
+def dummy():
+    print("This is added to avoid 'typer' throwing an error when having only one task available")
+
 
 
 if __name__ == "__main__":

@@ -1,3 +1,8 @@
+"""Multi-stage temporal convolutional network model architecture
+   as described in TeCNO paper: https://doi.org/10.1007/978-3-030-59716-0_33 .
+   
+   Script Author: Armine Vardazaryan"""
+
 import tensorflow as tf
 
 class DilatedResidualLayer(tf.keras.models.Model):

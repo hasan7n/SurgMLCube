@@ -10,6 +10,25 @@ from utils import LabelsParser
 
 class DataPreparation:
     def __init__(self, data_path, labels_path, params_file, output_path):
+        """A class wrapper for preparing the data.
+
+        Args:
+            data_path (str): The path to the folder containing the videos.
+            labels_path (str): The path to the folder containing the labels.
+            params_file (str): Configuration file for the data-preparation step.
+            out_path (str): Output folder to store the prepared data.
+
+        methods:
+            run(): executing the preparation task.
+
+            intermediate preparation steps called by 'run':
+                get_and_check_video_files()
+                get_and_check_label_files()
+                assign_labels_to_videos()
+                process_videos()
+                process_labels()
+        
+        """
         with open(params_file, "r") as f:
             self.params = yaml.full_load(f)
 
@@ -27,9 +46,11 @@ class DataPreparation:
 
     
     def get_and_check_video_files(self):
-        """
-        Checks every file in 'self.data_path'.
-        Saves supported video files paths for processing (in 'self.supported_videos_paths') and ignores other files.
+        """Checks every file in 'self.data_path' folder.
+        Saves supported video files paths for processing (in 'self.supported_videos_paths' attribute) and ignores other files.
+
+        Warns:
+            if an unsupported file type is encountered.
         """
         for filename in os.listdir(self.data_path):
             extenstion = get_file_extention(filename)
@@ -41,9 +62,10 @@ class DataPreparation:
                 print(f"Warning: Unrecognized video file type: {file}")
     
     def get_and_check_label_files(self):
-        """
-        Checks every file in 'self.labels_path'.
-        Saves supported labels files paths for processing (in 'self.supported_labels_paths') and ignores other files.
+        """Checks every file in 'self.labels_path' folder.
+        Saves supported labels files paths for processing (in 'self.supported_labels_paths' variable) and ignores other files.
+        Warns:
+            if an unsupported file type is encountered.
         """
         for filename in os.listdir(self.labels_path):
             extenstion = get_file_extention(filename)
@@ -55,18 +77,20 @@ class DataPreparation:
                 print(f"Warning: Unrecognized label file type: {file}")
 
     def assign_labels_to_videos(self):
-        """
-        Assigns labels files to videos. Each code block below is titled with its role:
-        - checks duplicate files (same names different extensions. this can rise ambiguity when associating
-                                 videos to labels files)
-        - Creates a dictionary attribute: 'self.videos_labels_pairs' of the form:
+        """Assigns labels files to videos by creating a dictionary attribute:
+        'self.videos_labels_pairs' of the form:
             {<video_path>:{
                             "labels": <labels_file_path>,
                             "fps": <video_fps>
                             }
                 }
         
-        - checks if any video file or labels file was not paired.
+        Warns:
+            if multiple video files of the same name but different extenstions were encountered,
+            if multiple labels files of the same name but different extenstions were encountered,
+            if a video file has no associated labels file,
+            if a labels file has no associated video file.
+
         """
 
         # TODO: should we accept other naming pattern conventions? e.g. (video1.mp4 and video1_labels.txt)
@@ -123,8 +147,15 @@ class DataPreparation:
 
     def process_videos(self):
         """
-        Extracts frames from each video using ffmpeg,
-        according to <fps> and <frame size> specified in the config file.
+        Extracts frames from each video using ffmpeg according to 
+        the FPS and the frame size specified in the configuration file.
+        
+        Warns:
+            If the output path already contains files or folders,
+            If a video has already been extracted (skips, even if it was partially extracted).
+
+        
+        Note: videos with more than 10^6 frames will cause current ffmpeg command to overwrite extra frames.
         """
 
         if not os.path.exists(self.output_path):
@@ -163,7 +194,20 @@ class DataPreparation:
 
     def process_labels(self):
         """
-        Parses labels files and creates csv files for each video where each frame is associated with a label.
+        Parses labels files and creates a two-column csv file for each video of the format:
+
+        frame_path,                                 label
+        <frame path relative to output folder>,     <label integer>
+        <frame path relative to output folder>,     <label integer>
+        ...
+
+        Warns:
+            If the output path already contains files or folders,
+            If any video frame has a missing label,
+            If any extra label exists with no corresponding video frame,
+            If the parsing functions raise warnings.
+        
+
         """
         csv_out_path = os.path.join(self.output_path, "data_csv")
         if not os.path.exists(csv_out_path):

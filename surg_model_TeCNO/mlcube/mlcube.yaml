@@ -1,7 +1,7 @@
 name: TeCNO Model
-description: cube for running TeCNO model
+description: MLCube implementing TeCNO model
 authors:
- - {name: "Best Practices Working Group"}
+ - {name: "Hasan Kassem"}
 
 platform:
   accelerator_count: 1

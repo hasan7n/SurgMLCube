@@ -14,7 +14,38 @@ class Inference:
                        mstcn_weights_path,
                        output_path):
 
-        # fix this
+        """Class wrapper for executing model inference.
+
+        Args:
+            data_root (str): data location. Expected to have the following structure:
+
+                                └── data_root
+                                    ├── frames
+                                    │   ├── some_video_name
+                                    │   │   ├── some_frame.png
+                                    │   │   ├── other_frame.png
+                                    │   │   └ ...
+                                    │   │
+                                    │   ├── other_video_name
+                                    │   │   ├── some_frame_.png
+                                    │   │   ├── other_frame_.png
+                                    │   │   └ ...
+                                    │   │
+                                    │   └ ...
+                                    │
+                                    └── data_csv
+                                        ├── some_video_name.csv
+                                        ├── other_video_name.csv
+                                        └ ...
+
+            params_file (str): yaml file with additional parameters
+            feature_extraction_weights_path (str): feature extraction model weights location
+            mstcn_weights_path (str): multi-stage temporal convolutional network weights location
+            output_path (str): location to store predictions
+        
+        """
+
+        # TODO: generalize this
         feature_extraction_weights_path = Path(feature_extraction_weights_path)
         prefix = list(feature_extraction_weights_path.glob("*.index"))[0].name.replace(".index", "")
         feature_extraction_weights_path = feature_extraction_weights_path / prefix
@@ -22,7 +53,7 @@ class Inference:
         mstcn_weights_path = Path(mstcn_weights_path)
         prefix = list(mstcn_weights_path.glob("*.index"))[0].name.replace(".index", "")
         mstcn_weights_path = mstcn_weights_path / prefix
-        # fix this
+        # TODO: generalize this
 
 
         with open(params_file, "r") as f:
@@ -51,7 +82,18 @@ class Inference:
 
     @tf.function
     def one_video_inference(self, dataset):
+        """Runs inference on one video
 
+        Args:
+            dataset (tf.data.Dataset): a TensorFlow dataset of a video
+
+        Returns:
+            A tuple consisting of:
+                1D-Tensor[tf.int32]: Predictions for all frames of the video.
+                1D-Tensor[tf.int32]: Ground-truth labels for all frames of the video.
+                1D-Tensor[tf.string]: frame paths for all frames of the video.
+
+        """
         num_batches = dataset.cardinality()
         num_batches = tf.cast(num_batches, tf.int32)
         features_tensor_array = tf.TensorArray(dtype=tf.float32, element_shape=[None, 2048], size=num_batches)
@@ -98,6 +140,16 @@ class Inference:
         return video_predictions, video_labels, video_frame_path
 
     def save_video_predictions(self, preds, labels, paths, out_file):
+        """saves video predictions
+
+        Args:
+            preds (1D-array[np.int32]): Predictions for all frames of the video.
+            labels (1D-array[np.int32]): Ground-truth labels for all frames of the video.
+            labels (1D-array[str]): frame paths for all frames of the video.
+            out_file (Path|str): output csv file path to store predictions in.
+
+        """
+
         tf.print("saving video predictions")
         with open(out_file, "w") as f:
             writer = csv.writer(f)
@@ -107,6 +159,8 @@ class Inference:
                 writer.writerow([frame_path, label, pred])
 
     def run(self):
+        """ Runs inference on each video and stores the predicitons."""
+
         num_vids = len(self.datasets)
         for i in range(num_vids):
             tf.print(f"Video {i+1}/{num_vids}")
@@ -114,9 +168,6 @@ class Inference:
             out_file = self.out_path / self.video_file_names[i]
             self.save_video_predictions(preds.numpy(), labels.numpy(), paths.numpy(), out_file)
         
-
-
-
 
 
 if __name__ == "__main__":
@@ -156,7 +207,7 @@ if __name__ == "__main__":
         "--params-file",
         type=str,
         required=True,
-        help="Configuration file for the data-preparation step",
+        help="Configuration file for the inference step",
     )
 
     parser.add_argument(
@@ -164,16 +215,16 @@ if __name__ == "__main__":
         "--output-path",
         type=str,
         required=True,
-        help="Location to store the prepared data",
+        help="Location to store the predictions",
     )
 
     args = parser.parse_args()
-    preprocessor = Inference(args.data_path,
+    inference_model = Inference(args.data_path,
                                 args.params_file,
                                 args.feature_extraction_weights_path,
                                 args.mstcn_weights_path,
                                 args.output_path
                                 )
                                 
-    preprocessor.run()
+    inference_model.run()
 

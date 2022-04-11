@@ -19,10 +19,11 @@ class InferenceTask(object):
     Task for preparing the data
 
     Arguments:
-    - data_path: data location.
-    - labels_path: labels location
+    - data_root: data location.
+    - feature_extraction_weights_path: feature extraction model weights location
+    - mstcn_weights_path: multi-stage temporal convolutional network weights location
     - params_file: yaml file with additional parameters
-    - output_path: location to store prepared data
+    - output_path: location to store predictions
     """
 
     @staticmethod
@@ -46,7 +47,7 @@ def prepare(
 
 @app.command("dummy")
 def dummy():
-    print("This is added just to avoid 'typer' throwing an error when having only one task available")
+    print("This is added to avoid 'typer' throwing an error when having only one task available")
 
 
 

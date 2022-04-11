@@ -63,27 +63,6 @@ class StatisticsTask(object):
         cmd = f"python3 statistics.py --data_path={data_path} --params_file={params_file} --out_path={out_path}"
         exec_python(cmd)
 
-
-# class CleanupTask(object):
-#     """
-#     Task for returning the workspace to its initial state. It removes
-#     any files created by the cube, as well as the parameters file.
-
-#     Args:
-#     - params_file: yaml file with configuration parameters.
-#     - output_path: path where the cube's output is stored.
-#     """
-
-#     @staticmethod
-#     def run(params_file: str, output_path: str) -> None:
-#         for root, dirs, files in os.walk(output_path):
-#             for file in files:
-#                 os.remove(os.path.join(root, file))
-#             for dir in dirs:
-#                 shutil.rmtree(os.path.join(root, dir))
-#         os.remove(params_file)
-
-
 @app.command("prepare")
 def prepare(
     data_path: str = typer.Option(..., "--data_path"),
@@ -109,19 +88,6 @@ def sanity_check(
     out_path: str = typer.Option(..., "--output_path"),
 ):
     StatisticsTask.run(data_path, parameters_file, out_path)
-
-
-# @app.command("cleanup")
-# def cleanup(
-#     parameters_file: str = typer.Option(..., "--parameters_file"),
-#     output_path: str = typer.Option(..., "--output_path"),
-# ):
-#     CleanupTask.run(parameters_file, output_path)
-
-
-@app.command("dummy")
-def dummy():
-    print("This is added just to avoid 'typer' throwing an error when having only one task available")
 
 
 if __name__ == "__main__":

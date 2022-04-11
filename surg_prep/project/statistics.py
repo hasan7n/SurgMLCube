@@ -7,6 +7,32 @@ from utils import get_file_basename
 
 class Statistics:
     def __init__(self, data_path, params_file, out_path):
+        """A class wrapper for calculating the statistics of the prepared dataset.
+
+        The following statistics are calculated:
+
+        '
+            num_vids: <number of videos>
+            num_frames:
+                total: <total number of frames>
+                mean: <mean number of frames across videos>
+                stddev: <Standard deviation of the number of frames across videos>
+                per_video: 
+                    <video name>: <Number of frames of the video>
+                    <video name>: <Number of frames of the video>
+                    ...
+        '
+
+        Args:
+            data_path (str): The path to the folder of the prepared data, generated 
+                             by the preparation step of the MLCube.
+            params_file (str): Configuration file for the data-preparation step.
+            out_path (str): Output file to store the statistics.
+
+        methods:
+            run(): executing the statistics calculation task.
+        
+        """
         with open(params_file, "r") as f:
             self.params = yaml.full_load(f)
 
@@ -14,21 +40,6 @@ class Statistics:
         self.out_path = out_path
     
     def run(self):
-        """
-        some statistics.
-
-        num_vids: x
-        num_frames:
-            total: x
-            mean: x
-            stddev: x
-            per_video: 
-                v1: x
-                v2: x
-                ...
-
-        """
-
         frames_per_video = {}
         csv_files = os.path.join(self.data_path, "data_csv")
         for csv_file in os.listdir(csv_files):

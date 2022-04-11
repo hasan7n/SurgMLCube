@@ -1,7 +1,7 @@
-name: Metrics
-description: metrics cube for evaluating the performance of models
+name: Phase Metrics
+description: MLCube evaluating frame-wise video classification
 authors:
- - {name: "Best Practices Working Group"}
+ - {name: "Hasan Kassem"}
 
 platform:
   accelerator_count: 0

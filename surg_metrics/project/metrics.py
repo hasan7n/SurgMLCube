@@ -8,26 +8,96 @@ from sklearn.metrics import (f1_score, accuracy_score,
 
 
 class MetricsClass:
+    """Class wrapper for calculating the supported metrics
+    
+    Args:
+        num_classes (int): The number of classes in the dataset
+
+    """
+
     def __init__(self, num_classes):
         self.num_classes = num_classes
 
     def f1_score(self, labels, preds):
+        """Calculates the F1-score metric using scikit-learn library
+        with macro-averaging across classes.
+    
+        Args:
+            labels (1D-array[int]): The ground-truth labels
+            preds (1D-array[int]): The predictions
+
+        Returns:
+            float: the F1-score metric
+        """
         return f1_score(labels, preds, average='macro', labels=list(range(self.num_classes)))
     
     def precision(self, labels, preds):
+        """Calculates the Precision metric using scikit-learn library
+        with macro-averaging across classes.
+    
+        Args:
+            labels (1D-array[int]): The ground-truth labels
+            preds (1D-array[int]): The predictions
+
+        Returns:
+            float: the Precision metric
+        """
         return precision_score(labels, preds, average='macro', labels=list(range(self.num_classes)))
     
     def jaccard(self, labels, preds):
+        """Calculates the Jaccard-score metric using scikit-learn library
+        with macro-averaging across classes.
+    
+        Args:
+            labels (1D-array[int]): The ground-truth labels
+            preds (1D-array[int]): The predictions
+
+        Returns:
+            float: the Jaccard-score metric
+        """
         return jaccard_score(labels, preds, average='macro', labels=list(range(self.num_classes)))
     
     def recall(self, labels, preds):
+        """Calculates the Recall metric using scikit-learn library
+        with macro-averaging across classes.
+    
+        Args:
+            labels (1D-array[int]): The ground-truth labels
+            preds (1D-array[int]): The predictions
+
+        Returns:
+            float: the Recall metric
+        """
         return recall_score(labels, preds, average='macro', labels=list(range(self.num_classes)))
     
     def accuracy(self, labels, preds):
+        """Calculates the Accuracy metric using scikit-learn library
+    
+        Args:
+            labels (1D-array[int]): The ground-truth labels
+            preds (1D-array[int]): The predictions
+
+        Returns:
+            float: the Accuracy metric
+        """
         return accuracy_score(labels, preds)
 
 
 class Evaluation:
+    """Class wrapper for calculating the supported metrics
+    
+    For each supported metric in the configuration file:
+        - the overall metric value across the videos is calculated
+        - the video-level mean and standard deviation of the metric
+          value across the videos are calculated.
+
+    Args:
+        preds_path (str): predictions location.
+        parameters_file (str): yaml file with additional parameters
+        output_file (str): location to the results
+
+    """
+
     def __init__(self, preds_path, parameters_file, output_file):
         with open(parameters_file, "r") as f:
             self.params = yaml.full_load(f)
@@ -106,8 +176,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
-    preprocessor = Evaluation(args.preds_path,
+    evaluator = Evaluation(args.preds_path,
                                 args.parameters_file,
                                 args.output_file)
                                 
-    preprocessor.run()
+    evaluator.run()
